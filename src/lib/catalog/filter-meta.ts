@@ -1,5 +1,11 @@
 import { PRODUCT_CATALOG, PRODUCT_KEYS, type ProductKey } from "./types";
+import filterConfig from "./filter-config.json";
 import {
+  APPLICATION_KEYS,
+  MATERIAL_KEYS,
+  PRIMARY_GROUPS,
+  SECTOR_KEYS,
+  SYSTEM_KEYS,
   type ApplicationKey,
   type MaterialKey,
   type PrimaryGroup,
@@ -17,201 +23,117 @@ export type ProductFilterMeta = {
   tags: readonly string[];
 };
 
-const CATEGORY_PRIMARY: Record<ProductKey, Exclude<PrimaryGroup, "all">> = {
-  facades: "facades",
-  aluminumWindows: "windows",
-  doorsAccess: "doors",
-  automaticDoors: "doors",
-  security: "security",
-  coversExteriors: "exteriors",
-  acmLouvers: "exteriors",
-  corporateInteriors: "interiors",
-  architecturalGlass: "interiors",
-  stainlessSteel: "steel",
+type CategoryFilterConfig = {
+  primaryGroup?: string;
+  sectors?: readonly string[];
+  materials?: readonly string[];
+  systems?: readonly string[];
+  applications?: readonly string[];
 };
 
-const CATEGORY_BASE: Record<ProductKey, Omit<ProductFilterMeta, "primaryGroup" | "tags">> = {
-  facades: {
-    sectors: ["corporate", "commercial", "institutional"],
-    materials: ["aluminum", "laminatedGlass", "temperedGlass"],
-    systems: ["structural", "rpt"],
-    applications: ["facade"],
-  },
-  aluminumWindows: {
-    sectors: ["corporate", "commercial", "residential", "institutional"],
-    materials: ["aluminum", "temperedGlass", "laminatedGlass"],
-    systems: ["sliding", "rpt"],
-    applications: ["facade", "access"],
-  },
-  doorsAccess: {
-    sectors: ["corporate", "commercial", "institutional"],
-    materials: ["aluminum", "temperedGlass", "stainlessSteel"],
-    systems: ["sliding", "hermetic", "structural"],
-    applications: ["access"],
-  },
-  automaticDoors: {
-    sectors: ["commercial", "corporate", "institutional", "pharmaceutical"],
-    materials: ["aluminum", "temperedGlass", "laminatedGlass"],
-    systems: ["automatic", "armored"],
-    applications: ["access"],
-  },
-  security: {
-    sectors: ["judicial", "institutional", "commercial", "corporate"],
-    materials: ["laminatedGlass", "stainlessSteel", "temperedGlass"],
-    systems: ["armored", "structural"],
-    applications: ["protection", "division"],
-  },
-  coversExteriors: {
-    sectors: ["commercial", "corporate", "residential", "institutional"],
-    materials: ["aluminum", "temperedGlass", "laminatedGlass"],
-    systems: ["structural", "sliding"],
-    applications: ["roof", "protection", "facade"],
-  },
-  acmLouvers: {
-    sectors: ["commercial", "corporate", "institutional"],
-    materials: ["acm", "aluminum"],
-    systems: ["structural"],
-    applications: ["facade", "protection"],
-  },
-  corporateInteriors: {
-    sectors: ["corporate", "commercial", "institutional"],
-    materials: ["temperedGlass", "aluminum", "laminatedGlass"],
-    systems: ["sliding", "structural"],
-    applications: ["division", "decoration", "access"],
-  },
-  architecturalGlass: {
-    sectors: ["corporate", "commercial", "residential", "institutional"],
-    materials: ["temperedGlass", "laminatedGlass"],
-    systems: ["structural"],
-    applications: ["decoration", "division", "access"],
-  },
-  stainlessSteel: {
-    sectors: ["corporate", "institutional", "pharmaceutical", "commercial"],
-    materials: ["stainlessSteel"],
-    systems: ["sliding", "structural"],
-    applications: ["access", "division", "decoration"],
-  },
+type SubcategoryFilterConfig = CategoryFilterConfig & {
+  tags?: readonly string[];
 };
 
-/** Ajustes por subcategoría — solo donde difiere de la base de categoría */
-const SUBCATEGORY_OVERRIDES: Partial<
-  Record<ProductKey, Partial<Record<string, Partial<ProductFilterMeta>>>>
-> = {
-  facades: {
-    curtainWallStick: { systems: ["structural"], tags: ["muro cortina", "stick", "curtain wall"] },
-    stickRpt: { systems: ["rpt", "structural"], tags: ["rpt", "puente termico"] },
-    structuralGlazing: {
-      systems: ["structural"],
-      tags: ["vidriado estructural", "structural glazing"],
-    },
-    glassSkin: { tags: ["piel de vidrio", "glass skin"] },
-  },
-  aluminumWindows: {
-    projected: { systems: ["structural"], tags: ["proyectable", "abatible"] },
-    sliding: { systems: ["sliding"], tags: ["corrediza", "corredizo"] },
-    visusFemec: { tags: ["visus", "femec"] },
-    thermalSolar: { tags: ["control solar", "termico", "dvH"] },
-  },
-  doorsAccess: {
-    slidingDoors: { systems: ["sliding"] },
-    hingedDoors: { systems: ["structural"] },
-    foldingDoors: { tags: ["plegable", "folding"] },
-    hermeticDoors: { systems: ["hermetic"], tags: ["hermetica", "hospital"] },
-  },
-  automaticDoors: {
-    standardAuto: { systems: ["automatic"] },
-    telescopicAuto: { systems: ["automatic", "sliding"], tags: ["telescopica"] },
-    armoredAuto: { systems: ["automatic", "armored"], tags: ["blindada"] },
-  },
-  security: {
-    armoredPartitions: {
-      systems: ["armored"],
-      tags: ["mampara blindada", "balistica"],
-    },
-    ballisticSteel: {
-      materials: ["stainlessSteel"],
-      systems: ["armored"],
-      tags: ["acero balistico"],
-    },
-    gesellGlass: {
-      sectors: ["judicial", "institutional"],
-      tags: ["gesell", "judicial"],
-    },
-    guardBooths: { tags: ["garita", "caseta"] },
-  },
-  coversExteriors: {
-    roofsSkylights: { applications: ["roof"], tags: ["claraboya", "cubierta"] },
-    pergolas: { tags: ["pergola"] },
-    marquees: { tags: ["marquesina"] },
-    glassEnclosures: { tags: ["cerramiento"] },
-  },
-  acmLouvers: {
-    acmPanels: { materials: ["acm"], tags: ["panel compuesto"] },
-    louvers: { tags: ["louver", "celosia"] },
-    sunBreakers: { tags: ["quiebrasol", "brise soleil"] },
-    compositeFacades: { applications: ["facade"] },
-  },
-  corporateInteriors: {
-    glassPartitions: { applications: ["division"] },
-    officeDivision: { applications: ["division"] },
-    lobbies: { applications: ["access", "decoration"] },
-    signage: { applications: ["decoration"] },
-  },
-  architecturalGlass: {
-    glassFloors: { tags: ["piso vidrio"] },
-    handrailsMirrors: { tags: ["pasamanos", "espejo"] },
-    decorativeGlass: { applications: ["decoration"] },
-    wineCellars: { tags: ["cava", "vinoteca"] },
-  },
-  stainlessSteel: {
-    handrails: { applications: ["access", "decoration"] },
-    ssSlidingDoors: { systems: ["sliding"] },
-    bathroomPartitions: { applications: ["division"], sectors: ["commercial", "institutional"] },
-  },
+type FilterConfigFile = {
+  categories: Record<string, CategoryFilterConfig>;
+  subcategories: Record<string, Record<string, SubcategoryFilterConfig>>;
 };
 
-function mergeMeta(
-  base: Omit<ProductFilterMeta, "primaryGroup" | "tags">,
-  override?: Partial<ProductFilterMeta>,
-  primaryGroup?: Exclude<PrimaryGroup, "all">,
-): ProductFilterMeta {
-  return {
-    primaryGroup: primaryGroup ?? "facades",
-    sectors: override?.sectors ?? base.sectors,
-    materials: override?.materials ?? base.materials,
-    systems: override?.systems ?? base.systems,
-    applications: override?.applications ?? base.applications,
-    tags: override?.tags ?? [],
-  };
+const CONFIG = filterConfig as FilterConfigFile;
+
+/** Filtros por defecto para categorías creadas desde el admin sin configuración propia. */
+const DEFAULT_META: Omit<ProductFilterMeta, "tags"> = {
+  primaryGroup: "other",
+  sectors: ["corporate", "commercial", "institutional"],
+  materials: ["aluminum", "temperedGlass", "laminatedGlass"],
+  systems: ["structural"],
+  applications: ["facade"],
+};
+
+function isKnownKey<T extends string>(
+  keys: readonly T[],
+  value: string,
+): value is T {
+  return (keys as readonly string[]).includes(value);
+}
+
+function sanitizeKeys<T extends string>(
+  keys: readonly T[],
+  values: readonly string[] | undefined,
+): readonly T[] | undefined {
+  if (!values) return undefined;
+  const valid = values.filter((value): value is T => isKnownKey(keys, value));
+  return valid.length > 0 ? valid : undefined;
+}
+
+function sanitizePrimaryGroup(
+  value: string | undefined,
+): Exclude<PrimaryGroup, "all"> | undefined {
+  if (!value || value === "all") return undefined;
+  return isKnownKey(PRIMARY_GROUPS, value)
+    ? (value as Exclude<PrimaryGroup, "all">)
+    : undefined;
 }
 
 export function getProductFilterMeta(
   category: ProductKey,
   subcategory: string,
 ): ProductFilterMeta {
-  const base = CATEGORY_BASE[category];
-  const override = SUBCATEGORY_OVERRIDES[category]?.[subcategory];
-  return mergeMeta(base, override, CATEGORY_PRIMARY[category]);
+  const base = CONFIG.categories[category] ?? {};
+  const override = CONFIG.subcategories[category]?.[subcategory] ?? {};
+
+  return {
+    primaryGroup:
+      sanitizePrimaryGroup(override.primaryGroup) ??
+      sanitizePrimaryGroup(base.primaryGroup) ??
+      DEFAULT_META.primaryGroup,
+    sectors:
+      sanitizeKeys(SECTOR_KEYS, override.sectors) ??
+      sanitizeKeys(SECTOR_KEYS, base.sectors) ??
+      DEFAULT_META.sectors,
+    materials:
+      sanitizeKeys(MATERIAL_KEYS, override.materials) ??
+      sanitizeKeys(MATERIAL_KEYS, base.materials) ??
+      DEFAULT_META.materials,
+    systems:
+      sanitizeKeys(SYSTEM_KEYS, override.systems) ??
+      sanitizeKeys(SYSTEM_KEYS, base.systems) ??
+      DEFAULT_META.systems,
+    applications:
+      sanitizeKeys(APPLICATION_KEYS, override.applications) ??
+      sanitizeKeys(APPLICATION_KEYS, base.applications) ??
+      DEFAULT_META.applications,
+    tags: override.tags ?? [],
+  };
+}
+
+export function getPrimaryGroupForCategory(
+  category: ProductKey,
+): Exclude<PrimaryGroup, "all"> {
+  return (
+    sanitizePrimaryGroup(CONFIG.categories[category]?.primaryGroup) ??
+    DEFAULT_META.primaryGroup
+  );
 }
 
 export const PRIMARY_GROUP_CATEGORIES: Record<
   Exclude<PrimaryGroup, "all">,
   readonly ProductKey[]
-> = {
-  facades: ["facades"],
-  windows: ["aluminumWindows"],
-  doors: ["doorsAccess", "automaticDoors"],
-  security: ["security"],
-  exteriors: ["coversExteriors", "acmLouvers"],
-  interiors: ["corporateInteriors", "architecturalGlass"],
-  steel: ["stainlessSteel"],
-};
+> = (() => {
+  const map = Object.fromEntries(
+    PRIMARY_GROUPS.filter((group) => group !== "all").map((group) => [
+      group,
+      [] as ProductKey[],
+    ]),
+  ) as Record<Exclude<PrimaryGroup, "all">, ProductKey[]>;
 
-export function getPrimaryGroupForCategory(
-  category: ProductKey,
-): Exclude<PrimaryGroup, "all"> {
-  return CATEGORY_PRIMARY[category];
-}
+  for (const category of PRODUCT_KEYS) {
+    map[getPrimaryGroupForCategory(category)].push(category);
+  }
+
+  return map;
+})();
 
 export function listAllProductEntries(): Array<{
   category: ProductKey;

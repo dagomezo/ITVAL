@@ -57,9 +57,21 @@
       "goToSlide": "View image {index}"
     },
     "taglines": {
-      "designBuild": "We design and build quality aluminum and glass systems that guarantee safe and comfortable environments.",
-      "innovative": "Innovative solutions in glass and aluminum for modern and sustainable architecture.",
-      "experience": "We place our experience and quality at your disposal to bring big ideas to life."
+      "navLabel": "Featured messages",
+      "items": {
+        "designBuild": {
+          "lead": "We design and build",
+          "body": "quality aluminum and glass systems that guarantee safe and comfortable environments."
+        },
+        "experience": {
+          "lead": "We place at your disposal",
+          "body": "our experience and quality to bring big ideas to life."
+        },
+        "innovative": {
+          "lead": "Innovative solutions",
+          "body": "in glass and aluminum for modern and sustainable architecture."
+        }
+      }
     }
   },
   "products": {

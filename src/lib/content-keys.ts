@@ -11,6 +11,12 @@ export const PROCESS_STEP_KEYS = [
 
 export const METRIC_KEYS = ["years", "projects", "cities"] as const;
 
+export const HERO_TAGLINE_KEYS = [
+  "designBuild",
+  "experience",
+  "innovative",
+] as const;
+
 export const PROJECT_CATEGORIES = [
   "commercial",
   "highRise",

@@ -3,7 +3,9 @@ import { useTranslations } from "next-intl";
 import { Container } from "@/components/layout/Container";
 import { ButtonLink } from "@/components/ui/Button";
 import { HeroCarousel } from "@/components/sections/HeroCarousel";
+import { HeroTaglines } from "@/components/sections/HeroTaglines";
 import { NAV_PATHS } from "@/lib/constants";
+import { HERO_TAGLINE_KEYS } from "@/lib/content-keys";
 import { getHeroBackgroundSources } from "@/lib/hero-images";
 
 const heroTextShadow =
@@ -16,6 +18,12 @@ export function Hero() {
   const backgroundImages = getHeroBackgroundSources().map((src) => ({
     src,
     alt: t("imageAlt"),
+  }));
+
+  const taglines = HERO_TAGLINE_KEYS.map((key) => ({
+    key,
+    lead: t(`taglines.items.${key}.lead`),
+    body: t(`taglines.items.${key}.body`),
   }));
 
   return (
@@ -40,18 +48,21 @@ export function Hero() {
       <Container className="relative z-10 flex min-h-screen flex-col justify-center pb-16 pt-24 lg:pb-24 lg:pt-28">
         <div className="max-w-3xl">
           <h1
-            className="text-4xl font-bold leading-tight tracking-tight text-white sm:text-5xl lg:text-6xl"
+            className="hero-reveal text-4xl font-bold leading-tight tracking-tight text-white sm:text-5xl lg:text-6xl"
             style={{ textShadow: heroTextShadow }}
           >
             {t("title")}
           </h1>
           <p
-            className="mt-6 max-w-2xl text-lg leading-relaxed text-white/95 sm:text-xl"
+            className="hero-reveal hero-reveal-delay-1 mt-6 max-w-2xl text-lg leading-relaxed text-white sm:text-xl"
             style={{ textShadow: heroTextShadow }}
           >
             {t("subtitle")}
           </p>
-          <div className="mt-8">
+
+          <HeroTaglines items={taglines} navLabel={t("taglines.navLabel")} />
+
+          <div className="hero-reveal hero-reveal-delay-3 mt-8">
             <ButtonLink href={NAV_PATHS.contact} variant="primary">
               {tc("quoteNow")}
             </ButtonLink>

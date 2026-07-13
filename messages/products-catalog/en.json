@@ -35,7 +35,8 @@
       "security": "Security",
       "exteriors": "Exteriors",
       "interiors": "Interiors",
-      "steel": "Steel"
+      "steel": "Steel",
+      "other": "Other"
     },
     "sectorLabel": "Sector",
     "materialLabel": "Material",

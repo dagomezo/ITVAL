@@ -145,10 +145,36 @@ export function ProductCatalogExplorer() {
     });
   }
 
-  const primaryGroups = PRIMARY_GROUPS.filter((g) => g !== "all") as Exclude<
-    PrimaryGroup,
-    "all"
-  >[];
+  // Solo se ofrecen grupos y opciones presentes en el catálogo publicado,
+  // para que los filtros siempre sean coherentes con las categorías reales.
+  const available = useMemo(() => {
+    const groups = new Set<Exclude<PrimaryGroup, "all">>();
+    const sectors = new Set<SectorKey>();
+    const materials = new Set<MaterialKey>();
+    const systems = new Set<SystemKey>();
+    const applications = new Set<ApplicationKey>();
+
+    for (const item of products) {
+      groups.add(item.meta.primaryGroup);
+      for (const key of item.meta.sectors) sectors.add(key);
+      for (const key of item.meta.materials) materials.add(key);
+      for (const key of item.meta.systems) systems.add(key);
+      for (const key of item.meta.applications) applications.add(key);
+    }
+
+    return {
+      primaryGroups: PRIMARY_GROUPS.filter(
+        (group): group is Exclude<PrimaryGroup, "all"> =>
+          group !== "all" && groups.has(group as Exclude<PrimaryGroup, "all">),
+      ),
+      sectors: SECTOR_KEYS.filter((key) => sectors.has(key)),
+      materials: MATERIAL_KEYS.filter((key) => materials.has(key)),
+      systems: SYSTEM_KEYS.filter((key) => systems.has(key)),
+      applications: APPLICATION_KEYS.filter((key) => applications.has(key)),
+    };
+  }, [products]);
+
+  const primaryGroups = available.primaryGroups;
 
   const advancedFilters = (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -157,7 +183,7 @@ export function ProductCatalogExplorer() {
         label={t("sectorLabel")}
         value={sector}
         onChange={setSector}
-        options={SECTOR_KEYS.map((key) => ({
+        options={available.sectors.map((key) => ({
           value: key,
           label: t(`sectors.${key}`),
         }))}
@@ -168,7 +194,7 @@ export function ProductCatalogExplorer() {
         label={t("materialLabel")}
         value={material}
         onChange={setMaterial}
-        options={MATERIAL_KEYS.map((key) => ({
+        options={available.materials.map((key) => ({
           value: key,
           label: t(`materials.${key}`),
         }))}
@@ -179,7 +205,7 @@ export function ProductCatalogExplorer() {
         label={t("systemLabel")}
         value={system}
         onChange={setSystem}
-        options={SYSTEM_KEYS.map((key) => ({
+        options={available.systems.map((key) => ({
           value: key,
           label: t(`systems.${key}`),
         }))}
@@ -190,7 +216,7 @@ export function ProductCatalogExplorer() {
         label={t("applicationLabel")}
         value={application}
         onChange={setApplication}
-        options={APPLICATION_KEYS.map((key) => ({
+        options={available.applications.map((key) => ({
           value: key,
           label: t(`applications.${key}`),
         }))}

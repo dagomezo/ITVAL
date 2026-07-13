@@ -8,6 +8,7 @@ export const MANIFEST_PATHS = {
   products: path.join(root, "src/lib/catalog/product-images.json"),
   blocked: path.join(root, "src/lib/catalog/blocked-images.json"),
   taxonomy: path.join(root, "src/lib/catalog/taxonomy.json"),
+  filters: path.join(root, "src/lib/catalog/filter-config.json"),
   siteSettings: path.join(root, "src/lib/catalog/site-settings.json"),
 } as const;
 

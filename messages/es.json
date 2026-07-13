@@ -57,9 +57,21 @@
       "goToSlide": "Ver imagen {index}"
     },
     "taglines": {
-      "designBuild": "Diseñamos y construimos sistemas de aluminio y vidrio de calidad que garantizan ambientes seguros y confortables.",
-      "innovative": "Soluciones innovadoras en vidrio y aluminio para arquitectura moderna y sostenible.",
-      "experience": "Ponemos a su disposición nuestra experiencia y calidad para hacer realidad las grandes ideas."
+      "navLabel": "Mensajes destacados",
+      "items": {
+        "designBuild": {
+          "lead": "Diseñamos y construimos",
+          "body": "sistemas de aluminio y vidrio de calidad, que garantizan ambientes seguros y confortables."
+        },
+        "experience": {
+          "lead": "Ponemos a su disposición",
+          "body": "nuestra experiencia y calidad para hacer realidad las grandes ideas."
+        },
+        "innovative": {
+          "lead": "Soluciones innovadoras",
+          "body": "en vidrio y aluminio para arquitectura moderna y sostenible."
+        }
+      }
     }
   },
   "products": {

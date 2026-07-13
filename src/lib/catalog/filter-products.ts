@@ -103,6 +103,7 @@ export function countByPrimaryGroup(
     exteriors: 0,
     interiors: 0,
     steel: 0,
+    other: 0,
   };
 
   for (const item of items) {

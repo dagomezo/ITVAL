@@ -230,6 +230,22 @@ function buildLocale(locale) {
       standards: isEs ? "Normas técnicas" : "Technical standards",
       options: isEs ? "Opciones y variantes" : "Options & variants",
       relatedProjects: isEs ? "Proyectos relacionados" : "Related projects",
+      projectGallery: isEs
+        ? "Galería de obras y referencias"
+        : "Project gallery & references",
+      closeGallery: isEs ? "Cerrar imagen" : "Close image",
+      galleryPaginationNav: isEs
+        ? "Paginación de la galería"
+        : "Gallery pagination",
+      galleryPreviousPage: isEs ? "Anterior" : "Previous",
+      galleryNextPage: isEs ? "Siguiente" : "Next",
+      galleryPageStatus: isEs
+        ? "Página {page} de {totalPages}"
+        : "Page {page} of {totalPages}",
+      galleryGoToPage: isEs ? "Ir a la página {page}" : "Go to page {page}",
+      galleryShowingRange: isEs
+        ? "Mostrando {from}–{to} de {total} imágenes"
+        : "Showing {from}–{to} of {total} images",
       requestQuote: isEs ? "Solicitar cotización" : "Request a quote",
     },
     explorer: {
@@ -242,11 +258,13 @@ function buildLocale(locale) {
       primary: {
         all: isEs ? "Todos" : "All",
         facades: isEs ? "Fachadas" : "Facades",
+        windows: isEs ? "Ventanas" : "Windows",
         doors: isEs ? "Puertas" : "Doors",
         security: isEs ? "Seguridad" : "Security",
         exteriors: isEs ? "Exteriores" : "Exteriors",
         interiors: isEs ? "Interiores" : "Interiors",
         steel: isEs ? "Acero" : "Steel",
+        other: isEs ? "Otros" : "Other",
       },
       sectorLabel: isEs ? "Sector" : "Sector",
       materialLabel: isEs ? "Material" : "Material",
@@ -297,6 +315,16 @@ function buildLocale(locale) {
       emptyHint: isEs
         ? "Sugerencia: intenta buscar por material, sector o tipo de sistema."
         : "Tip: try searching by material, sector or system type.",
+      showingRange: isEs
+        ? "Mostrando {from}–{to} de {total} soluciones"
+        : "Showing {from}–{to} of {total} solutions",
+      paginationNav: isEs ? "Paginación de resultados" : "Results pagination",
+      previousPage: isEs ? "Anterior" : "Previous",
+      nextPage: isEs ? "Siguiente" : "Next",
+      pageStatus: isEs
+        ? "Página {page} de {totalPages}"
+        : "Page {page} of {totalPages}",
+      goToPage: isEs ? "Ir a la página {page}" : "Go to page {page}",
     },
     categories: {},
     subcategories: {},

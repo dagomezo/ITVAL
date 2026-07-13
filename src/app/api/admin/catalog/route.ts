@@ -1,8 +1,22 @@
 import { NextResponse } from "next/server";
 import { isAdminAuthenticated } from "@/lib/admin/auth";
-import { listCatalogTree, listProjectCategoryOptions, updateCatalogEntry } from "@/lib/admin/catalog-service";
+import {
+  listCatalogTree,
+  listProjectCategoryOptions,
+  listCatalogFilterOptions,
+  updateCatalogEntry,
+  updateCatalogFilters,
+  addCategory,
+  addSubcategory,
+  type CatalogFilterSelection,
+} from "@/lib/admin/catalog-service";
 
-export type { CatalogCategoryItem, CatalogSubcategoryItem } from "@/lib/admin/catalog-service";
+export type {
+  CatalogCategoryItem,
+  CatalogSubcategoryItem,
+  CatalogFilterSelection,
+  CatalogFilterOptions,
+} from "@/lib/admin/catalog-service";
 
 export async function GET(request: Request) {
   if (!(await isAdminAuthenticated())) {
@@ -15,7 +29,7 @@ export async function GET(request: Request) {
   }
 
   const categories = await listCatalogTree();
-  return NextResponse.json({ categories });
+  return NextResponse.json({ categories, filterOptions: listCatalogFilterOptions() });
 }
 
 export async function PATCH(request: Request) {
@@ -31,6 +45,7 @@ export async function PATCH(request: Request) {
     titleEn?: string;
     descriptionEs?: string;
     descriptionEn?: string;
+    filters?: Partial<CatalogFilterSelection>;
   };
 
   if (!body.categoryKey || !body.type) {
@@ -39,6 +54,15 @@ export async function PATCH(request: Request) {
 
   try {
     await updateCatalogEntry(body);
+
+    if (body.filters) {
+      await updateCatalogFilters({
+        type: body.type,
+        categoryKey: body.categoryKey,
+        subcategoryKey: body.subcategoryKey,
+        filters: body.filters,
+      });
+    }
     const categories = await listCatalogTree();
     const updated =
       body.type === "category"
@@ -51,6 +75,71 @@ export async function PATCH(request: Request) {
   } catch (error) {
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "No se pudo guardar" },
+      { status: 500 },
+    );
+  }
+}
+
+export async function POST(request: Request) {
+  if (!(await isAdminAuthenticated())) {
+    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+  }
+
+  const body = (await request.json()) as {
+    action: "add-category" | "add-subcategory";
+    key?: string;
+    categoryKey?: string;
+    titleEs?: string;
+    titleEn?: string;
+    descriptionEs?: string;
+    descriptionEn?: string;
+    subcategoryKey?: string;
+    subTitleEs?: string;
+    subTitleEn?: string;
+    subDescriptionEs?: string;
+    subDescriptionEn?: string;
+    primaryGroup?: string;
+  };
+
+  try {
+    if (body.action === "add-category") {
+      if (!body.key || !body.titleEs || !body.titleEn || !body.subcategoryKey || !body.subTitleEs || !body.subTitleEn) {
+        return NextResponse.json({ error: "Completa categoría y primera subcategoría." }, { status: 400 });
+      }
+      await addCategory({
+        key: body.key,
+        titleEs: body.titleEs,
+        titleEn: body.titleEn,
+        descriptionEs: body.descriptionEs ?? "",
+        descriptionEn: body.descriptionEn ?? "",
+        subcategoryKey: body.subcategoryKey,
+        subTitleEs: body.subTitleEs,
+        subTitleEn: body.subTitleEn,
+        subDescriptionEs: body.subDescriptionEs,
+        subDescriptionEn: body.subDescriptionEn,
+        primaryGroup: body.primaryGroup,
+      });
+    } else if (body.action === "add-subcategory") {
+      if (!body.categoryKey || !body.key || !body.titleEs || !body.titleEn) {
+        return NextResponse.json({ error: "Datos incompletos." }, { status: 400 });
+      }
+      await addSubcategory({
+        categoryKey: body.categoryKey,
+        key: body.key,
+        titleEs: body.titleEs,
+        titleEn: body.titleEn,
+        descriptionEs: body.descriptionEs,
+        descriptionEn: body.descriptionEn,
+      });
+    } else {
+      return NextResponse.json({ error: "Acción no válida." }, { status: 400 });
+    }
+
+    const categories = await listCatalogTree();
+    return NextResponse.json({ ok: true, categories });
+  } catch (error) {
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : "No se pudo crear" },
       { status: 500 },
     );
   }

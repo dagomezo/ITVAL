@@ -9,6 +9,7 @@ export const PRIMARY_GROUPS = [
   "exteriors",
   "interiors",
   "steel",
+  "other",
 ] as const;
 
 export type PrimaryGroup = (typeof PRIMARY_GROUPS)[number];
